@@ -53,7 +53,7 @@ export default {
         }
       });
       vm.setResultTips();
-      console.log(this.useTime);
+      console.log("答题用时：>>>>>>>>>>>>>>>",this.useTime);
       console.log("答对题:" + vm.sureExam.length);
     },
     setResultTips() {

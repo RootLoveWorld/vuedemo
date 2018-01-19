@@ -63,17 +63,17 @@ export default {
     //下一题
     nextItem() {
       if (!this.selectedValue) {
-        this.$Message.warning("请先选择答案！");
+        this.$Message.warning("请先选择答案！")
         return;
       }
-      this.selectedValue = "";
+      this.selectedValue = ""
       this.NEXT_ITEM();
-      this.getCurrentAnswer();
+      this.getCurrentAnswer()
     },
     //上一题
     prevItem() {
-      this.PREV_ITEM();
-      this.getCurrentAnswer();
+      this.PREV_ITEM()
+      this.getCurrentAnswer()
     },
     //提交答案
     handleSubmit() {
