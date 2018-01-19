@@ -80,7 +80,12 @@
         </a>
       </li>
     </ul>
+    <div>
+      
+      链接：<router-link to="/home">link Home</router-link>
+    </div>
   </div>
+
 </template>
 
 <script>
@@ -88,7 +93,7 @@ export default {
   name: 'HelloWorld',
   data () {
     return {
-      msg: 'Welcome to Your Vue.js App'
+      msg: 'Welcome to Miracle\'s Vue.js App'
     }
   }
 }
