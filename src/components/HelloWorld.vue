@@ -80,8 +80,15 @@
         </a>
       </li>
     </ul>
+    <br/>
+     <span v-bind:title="message">
+        鼠标悬停几秒钟查看此处动态绑定的提示信息！
+     </span>
+      <br/>
+      <p v-if="seen">现在你看到我了</p>
+      <button v-on:click="isShow">{{btnName}} </button>
+      <br/>
     <div>
-      
       链接：<router-link to="/home">link Home</router-link>
     </div>
   </div>
@@ -93,7 +100,19 @@ export default {
   name: 'HelloWorld',
   data () {
     return {
-      msg: 'Welcome to Miracle\'s Vue.js App'
+      msg: 'Welcome to Miracle\'s Vue.js App',
+      seen:true,
+      message:"To  Test "+ new Date().toLocaleString(),
+      btnName:"看不见"
+    }
+  },
+  methods:{
+    isShow:function(event){
+      
+      this.$data.btnName = this.$data.seen ? "看得见" : "看不见";
+      this.$data.seen =  !this.$data.seen;
+
+      console.log("event==",event,this.$data)
     }
   }
 }
