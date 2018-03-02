@@ -1810,7 +1810,7 @@ copy-webpack-plugin@^4.0.1:
     pify "^3.0.0"
     serialize-javascript "^1.4.0"
 
-core-js@^2.4.0, core-js@^2.5.0, core-js@^2.5.3:
+core-js@^2.4.0, core-js@^2.5.0:
   version "2.5.3"
   resolved "https://registry.yarnpkg.com/core-js/-/core-js-2.5.3.tgz#8acc38345824f16d8365b7c9b4259168e8ed603e"
 
@@ -2306,6 +2306,12 @@ ecc-jsbn@~0.1.1:
   dependencies:
     jsbn "~0.1.0"
 
+echarts@^4.0.4:
+  version "4.0.4"
+  resolved "https://registry.yarnpkg.com/echarts/-/echarts-4.0.4.tgz#36aa8a47d33543d3dfe6a7bc1228ddc3a1e41157"
+  dependencies:
+    zrender "4.0.3"
+
 editorconfig@^0.13.2:
   version "0.13.3"
   resolved "https://registry.yarnpkg.com/editorconfig/-/editorconfig-0.13.3.tgz#e5219e587951d60958fd94ea9a9a008cdeff1b34"
@@ -2334,9 +2340,9 @@ electron-to-chromium@^1.2.7, electron-to-chromium@^1.3.30:
   dependencies:
     electron-releases "^2.1.0"
 
-element-resize-detector@^1.1.12:
-  version "1.1.12"
-  resolved "https://registry.yarnpkg.com/element-resize-detector/-/element-resize-detector-1.1.12.tgz#8b3fd6eedda17f9c00b360a0ea2df9927ae80ba2"
+element-resize-detector@^1.1.13:
+  version "1.1.14"
+  resolved "https://registry.yarnpkg.com/element-resize-detector/-/element-resize-detector-1.1.14.tgz#af064a0a618a820ad570a95c5eec5b77be0128c1"
   dependencies:
     batch-processor "^1.0.0"
 
@@ -4023,14 +4029,13 @@ istanbul-reports@^1.1.3:
   dependencies:
     handlebars "^4.0.3"
 
-iview@^2.8.0:
-  version "2.8.0"
-  resolved "https://registry.yarnpkg.com/iview/-/iview-2.8.0.tgz#4f5ebfe493f1697c87022739ca27ddd8797a661c"
+iview@2.9.2:
+  version "2.9.2"
+  resolved "https://registry.yarnpkg.com/iview/-/iview-2.9.2.tgz#737e896d2028a9d3095f6d0b541233789ae40417"
   dependencies:
     async-validator "^1.8.2"
-    core-js "^2.5.3"
     deepmerge "^1.5.2"
-    element-resize-detector "^1.1.12"
+    element-resize-detector "^1.1.13"
     lodash.throttle "^4.1.1"
     popper.js "^0.6.4"
     tinycolor2 "^1.4.1"
@@ -7870,3 +7875,7 @@ yargs@~3.10.0:
     cliui "^2.1.0"
     decamelize "^1.0.0"
     window-size "0.1.0"
+
+zrender@4.0.3:
+  version "4.0.3"
+  resolved "https://registry.yarnpkg.com/zrender/-/zrender-4.0.3.tgz#801ef001101750a61857f84e64c4d5fb3c88cca7"

@@ -7,7 +7,7 @@
               <span>时长: {{time}}分钟</span>
           </p>
       </div>
-      <section v-for="(item, index) in examList" v-show="index == currendIndex">
+      <section v-for="(item, index) in examList" v-show="index == currendIndex" :key="item.examId">
           <label>{{ index + 1 }}. <span>{{item.title}} ({{item.score}}分)</span></label>
           <div class="item-options">
               <RadioGroup v-model="selectedValue" @on-change="changeCurrentAnswer">
