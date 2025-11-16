@@ -426,11 +426,36 @@ cat backup.sql | docker-compose -f docker-compose.prod.yml exec -T postgres \
 docker cp ./ollama_backup/. workflow-ollama:/root/.ollama
 ```
 
+## Nginx Reverse Proxy
+
+For production deployments with SSL/TLS, load balancing, and advanced routing:
+
+- **[Nginx Setup Guide](./NGINX_SETUP.md)** - Complete nginx reverse proxy documentation
+- **[Nginx Quick Reference](./NGINX_QUICK_REFERENCE.md)** - Quick commands and troubleshooting
+
+### Quick Start with Nginx
+
+```bash
+# Development with self-signed SSL
+cd docker
+make -f Makefile.nginx setup-dev
+make -f Makefile.nginx start
+
+# Production with Let's Encrypt
+cd docker
+make -f Makefile.nginx setup-prod
+# Edit .env.nginx with your domain
+make -f Makefile.nginx ssl-prod
+make -f Makefile.nginx start
+```
+
 ## Additional Documentation
 
 - **[Docker Compose Guide](./DOCKER_COMPOSE_GUIDE.md)** - Comprehensive guide for both environments
 - **[Deployment Guide](./DEPLOYMENT.md)** - Production deployment documentation
 - **[Docker Setup](../DOCKER_SETUP.md)** - Initial setup documentation
+- **[Nginx Setup](./NGINX_SETUP.md)** - Nginx reverse proxy configuration
+- **[Nginx Quick Reference](./NGINX_QUICK_REFERENCE.md)** - Nginx quick commands
 
 ## Support
 

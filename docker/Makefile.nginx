@@ -1,0 +1,183 @@
+# Makefile for Nginx Reverse Proxy Management
+# Usage: make -f Makefile.nginx <target>
+
+.PHONY: help setup-dev setup-prod start stop restart logs status clean ssl-dev ssl-prod reload test
+
+# Default target
+help:
+	@echo "AI Workflow Platform - Nginx Reverse Proxy Management"
+	@echo ""
+	@echo "Available targets:"
+	@echo "  setup-dev      - Setup development environment with self-signed SSL"
+	@echo "  setup-prod     - Setup production environment with Let's Encrypt"
+	@echo "  start          - Start all services with nginx"
+	@echo "  stop           - Stop all services"
+	@echo "  restart        - Restart all services"
+	@echo "  logs           - View nginx logs"
+	@echo "  logs-all       - View all service logs"
+	@echo "  status         - Check service status"
+	@echo "  reload         - Reload nginx configuration"
+	@echo "  test           - Test nginx configuration"
+	@echo "  ssl-dev        - Generate self-signed SSL certificate"
+	@echo "  ssl-prod       - Initialize Let's Encrypt certificate"
+	@echo "  ssl-renew      - Manually renew Let's Encrypt certificate"
+	@echo "  clean          - Stop and remove all containers and volumes"
+	@echo "  health         - Check health of all services"
+	@echo ""
+
+# Development setup
+setup-dev: ssl-dev
+	@echo "Setting up development environment..."
+	@if [ ! -f .env.nginx ]; then \
+		cp .env.nginx.example .env.nginx; \
+		echo "Created .env.nginx from template"; \
+		echo "Please review and update .env.nginx if needed"; \
+	fi
+	@echo "Development environment ready!"
+	@echo "Run 'make start' to start services"
+
+# Production setup
+setup-prod:
+	@echo "Setting up production environment..."
+	@if [ ! -f .env.nginx ]; then \
+		cp .env.nginx.example .env.nginx; \
+		echo "Created .env.nginx from template"; \
+		echo "⚠️  IMPORTANT: Update .env.nginx with production values!"; \
+		echo "   - Set DOMAIN_NAME to your domain"; \
+		echo "   - Set CERTBOT_EMAIL to your email"; \
+		echo "   - Set JWT_SECRET to a strong random value"; \
+		exit 1; \
+	fi
+	@echo "Production environment configured"
+	@echo "Run 'make ssl-prod' to initialize SSL certificates"
+
+# Start services
+start:
+	@echo "Starting services with nginx reverse proxy..."
+	docker-compose -f docker-compose.nginx.yml up -d
+	@echo "Services started!"
+	@echo "Access the application at:"
+	@echo "  HTTP:  http://localhost"
+	@echo "  HTTPS: https://localhost"
+
+# Stop services
+stop:
+	@echo "Stopping services..."
+	docker-compose -f docker-compose.nginx.yml down
+	@echo "Services stopped"
+
+# Restart services
+restart: stop start
+
+# View nginx logs
+logs:
+	docker-compose -f docker-compose.nginx.yml logs -f nginx
+
+# View all logs
+logs-all:
+	docker-compose -f docker-compose.nginx.yml logs -f
+
+# Check service status
+status:
+	docker-compose -f docker-compose.nginx.yml ps
+
+# Reload nginx configuration
+reload:
+	@echo "Reloading nginx configuration..."
+	docker-compose -f docker-compose.nginx.yml exec nginx nginx -s reload
+	@echo "Nginx configuration reloaded"
+
+# Test nginx configuration
+test:
+	@echo "Testing nginx configuration..."
+	docker-compose -f docker-compose.nginx.yml exec nginx nginx -t
+
+# Generate self-signed SSL certificate
+ssl-dev:
+	@echo "Generating self-signed SSL certificate..."
+	@mkdir -p ssl
+	./scripts/generate-self-signed-cert.sh localhost
+	@echo "Self-signed certificate generated"
+
+# Initialize Let's Encrypt certificate
+ssl-prod:
+	@echo "Initializing Let's Encrypt certificate..."
+	@if [ ! -f .env.nginx ]; then \
+		echo "Error: .env.nginx not found"; \
+		echo "Run 'make setup-prod' first"; \
+		exit 1; \
+	fi
+	./scripts/init-letsencrypt.sh
+	@echo "Let's Encrypt certificate initialized"
+
+# Renew Let's Encrypt certificate
+ssl-renew:
+	@echo "Renewing Let's Encrypt certificate..."
+	docker-compose -f docker-compose.nginx.yml run --rm certbot renew
+	docker-compose -f docker-compose.nginx.yml exec nginx nginx -s reload
+	@echo "Certificate renewed and nginx reloaded"
+
+# Clean up everything
+clean:
+	@echo "⚠️  This will remove all containers, volumes, and data!"
+	@read -p "Are you sure? [y/N] " -n 1 -r; \
+	echo; \
+	if [[ $$REPLY =~ ^[Yy]$$ ]]; then \
+		docker-compose -f docker-compose.nginx.yml down -v; \
+		echo "Cleanup complete"; \
+	else \
+		echo "Cleanup cancelled"; \
+	fi
+
+# Health check
+health:
+	@echo "Checking service health..."
+	@echo ""
+	@echo "Nginx:"
+	@curl -sf http://localhost/health > /dev/null && echo "  ✓ Healthy" || echo "  ✗ Unhealthy"
+	@echo ""
+	@echo "BFF:"
+	@docker-compose -f docker-compose.nginx.yml exec -T bff node -e "require('http').get('http://localhost:3001/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})" > /dev/null 2>&1 && echo "  ✓ Healthy" || echo "  ✗ Unhealthy"
+	@echo ""
+	@echo "AI Service:"
+	@docker-compose -f docker-compose.nginx.yml exec -T ai-service curl -sf http://localhost:8000/health > /dev/null && echo "  ✓ Healthy" || echo "  ✗ Unhealthy"
+	@echo ""
+	@echo "PostgreSQL:"
+	@docker-compose -f docker-compose.nginx.yml exec -T postgres pg_isready -U workflow > /dev/null && echo "  ✓ Healthy" || echo "  ✗ Unhealthy"
+	@echo ""
+	@echo "Redis:"
+	@docker-compose -f docker-compose.nginx.yml exec -T redis redis-cli ping > /dev/null && echo "  ✓ Healthy" || echo "  ✗ Unhealthy"
+	@echo ""
+
+# Scale services
+scale-bff:
+	@read -p "Number of BFF instances: " count; \
+	docker-compose -f docker-compose.nginx.yml up -d --scale bff=$$count
+
+scale-ai:
+	@read -p "Number of AI service instances: " count; \
+	docker-compose -f docker-compose.nginx.yml up -d --scale ai-service=$$count
+
+scale-frontend:
+	@read -p "Number of frontend instances: " count; \
+	docker-compose -f docker-compose.nginx.yml up -d --scale frontend=$$count
+
+# Backup
+backup:
+	@echo "Creating backup..."
+	@mkdir -p backups
+	@timestamp=$$(date +%Y%m%d_%H%M%S); \
+	docker-compose -f docker-compose.nginx.yml exec -T postgres pg_dump -U workflow workflow_db > backups/db_$$timestamp.sql; \
+	echo "Database backup created: backups/db_$$timestamp.sql"
+
+# Restore
+restore:
+	@echo "Available backups:"
+	@ls -1 backups/*.sql 2>/dev/null || echo "No backups found"
+	@read -p "Enter backup filename: " backup; \
+	if [ -f "backups/$$backup" ]; then \
+		docker-compose -f docker-compose.nginx.yml exec -T postgres psql -U workflow workflow_db < backups/$$backup; \
+		echo "Database restored from: backups/$$backup"; \
+	else \
+		echo "Backup file not found"; \
+	fi
