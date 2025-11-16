@@ -1,0 +1,163 @@
+# Development Docker Compose Configuration
+# This configuration is optimized for local development with hot reload
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: workflow-postgres-dev
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-workflow}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-workflow_dev}
+      POSTGRES_DB: ${POSTGRES_DB:-workflow_dev}
+      POSTGRES_INITDB_ARGS: '-E UTF8 --locale=en_US.UTF-8'
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+    ports:
+      - '${POSTGRES_PORT:-5432}:5432'
+    networks:
+      - workflow-dev-network
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-workflow}']
+      interval: 5s
+      timeout: 3s
+      retries: 3
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: workflow-redis-dev
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_dev_data:/data
+    ports:
+      - '${REDIS_PORT:-6379}:6379'
+    networks:
+      - workflow-dev-network
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 3s
+      retries: 3
+
+  # Ollama LLM Service
+  ollama:
+    image: ollama/ollama:latest
+    container_name: workflow-ollama-dev
+    restart: unless-stopped
+    volumes:
+      - ollama_dev_data:/root/.ollama
+    ports:
+      - '${OLLAMA_PORT:-11434}:11434'
+    networks:
+      - workflow-dev-network
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:11434/api/tags']
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  # AI Service (Python/FastAPI) - Development Mode
+  ai-service:
+    build:
+      context: ..
+      dockerfile: docker/ai-service.Dockerfile
+      target: builder # Use builder stage for development
+    container_name: workflow-ai-service-dev
+    restart: unless-stopped
+    environment:
+      - OLLAMA_BASE_URL=http://ollama:11434
+      - REDIS_URL=redis://redis:6379
+      - LOG_LEVEL=${LOG_LEVEL:-DEBUG}
+      - RELOAD=true
+    volumes:
+      # Mount source code for hot reload
+      - ../apps/ai-service:/app/apps/ai-service:delegated
+    ports:
+      - '${AI_SERVICE_PORT:-8000}:8000'
+      - '${AI_SERVICE_DEBUG_PORT:-5678}:5678' # Python debugger port
+    networks:
+      - workflow-dev-network
+    depends_on:
+      redis:
+        condition: service_healthy
+      ollama:
+        condition: service_healthy
+    command: poetry run uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  # BFF Service (NestJS) - Development Mode
+  bff:
+    build:
+      context: ..
+      dockerfile: docker/bff.Dockerfile
+      target: builder # Use builder stage for development
+    container_name: workflow-bff-dev
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-workflow}:${POSTGRES_PASSWORD:-workflow_dev}@postgres:5432/${POSTGRES_DB:-workflow_dev}
+      - REDIS_URL=redis://redis:6379
+      - AI_SERVICE_URL=http://ai-service:8000
+      - JWT_SECRET=${JWT_SECRET:-dev-secret-key}
+      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN:-7d}
+      - PORT=3001
+      - CORS_ORIGIN=*
+    volumes:
+      # Mount source code for hot reload
+      - ../apps/bff:/app/apps/bff:delegated
+      - ../packages:/app/packages:delegated
+      - /app/apps/bff/node_modules
+      - /app/node_modules
+    ports:
+      - '${BFF_PORT:-3001}:3001'
+      - '${BFF_DEBUG_PORT:-9229}:9229' # Node.js debugger port
+    networks:
+      - workflow-dev-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      ai-service:
+        condition: service_started
+    command: sh -c "npx prisma migrate deploy && npm run start:dev"
+
+  # Frontend (Vue3) - Development Mode
+  frontend:
+    build:
+      context: ..
+      dockerfile: docker/frontend.Dockerfile
+      target: builder # Use builder stage for development
+    container_name: workflow-frontend-dev
+    restart: unless-stopped
+    environment:
+      - VITE_API_URL=http://localhost:3001
+      - VITE_WS_URL=ws://localhost:3001
+    volumes:
+      # Mount source code for hot reload
+      - ../apps/frontend:/app/apps/frontend:delegated
+      - ../packages:/app/packages:delegated
+      - /app/apps/frontend/node_modules
+      - /app/node_modules
+    ports:
+      - '${FRONTEND_PORT:-3000}:5173' # Vite dev server port
+    networks:
+      - workflow-dev-network
+    depends_on:
+      - bff
+    command: npm run dev -- --host 0.0.0.0
+
+networks:
+  workflow-dev-network:
+    driver: bridge
+
+volumes:
+  postgres_dev_data:
+    driver: local
+  redis_dev_data:
+    driver: local
+  ollama_dev_data:
+    driver: local

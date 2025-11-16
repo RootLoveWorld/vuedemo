@@ -1,0 +1,111 @@
+/**
+ * Error code constants
+ */
+
+export const ERROR_CODES = {
+  // Authentication errors (1000-1099)
+  AUTH_INVALID_CREDENTIALS: 'AUTH_001',
+  AUTH_TOKEN_EXPIRED: 'AUTH_002',
+  AUTH_TOKEN_INVALID: 'AUTH_003',
+  AUTH_UNAUTHORIZED: 'AUTH_004',
+  AUTH_FORBIDDEN: 'AUTH_005',
+
+  // Workflow errors (2000-2099)
+  WORKFLOW_NOT_FOUND: 'WF_001',
+  WORKFLOW_INVALID_DEFINITION: 'WF_002',
+  WORKFLOW_VALIDATION_FAILED: 'WF_003',
+  WORKFLOW_CIRCULAR_DEPENDENCY: 'WF_004',
+  WORKFLOW_INVALID_NODE: 'WF_005',
+  WORKFLOW_INVALID_EDGE: 'WF_006',
+  WORKFLOW_DUPLICATE_NAME: 'WF_007',
+
+  // Execution errors (3000-3099)
+  EXECUTION_NOT_FOUND: 'EX_001',
+  EXECUTION_ALREADY_RUNNING: 'EX_002',
+  EXECUTION_FAILED: 'EX_003',
+  EXECUTION_TIMEOUT: 'EX_004',
+  EXECUTION_STOPPED: 'EX_005',
+  EXECUTION_INVALID_INPUT: 'EX_006',
+
+  // Node execution errors (4000-4099)
+  NODE_EXECUTION_FAILED: 'NODE_001',
+  NODE_INVALID_CONFIG: 'NODE_002',
+  NODE_MISSING_INPUT: 'NODE_003',
+  NODE_TIMEOUT: 'NODE_004',
+
+  // LLM errors (5000-5099)
+  LLM_SERVICE_UNAVAILABLE: 'LLM_001',
+  LLM_MODEL_NOT_FOUND: 'LLM_002',
+  LLM_GENERATION_FAILED: 'LLM_003',
+  LLM_TIMEOUT: 'LLM_004',
+  LLM_RATE_LIMIT: 'LLM_005',
+
+  // Database errors (6000-6099)
+  DB_CONNECTION_FAILED: 'DB_001',
+  DB_QUERY_FAILED: 'DB_002',
+  DB_CONSTRAINT_VIOLATION: 'DB_003',
+  DB_RECORD_NOT_FOUND: 'DB_004',
+
+  // Validation errors (7000-7099)
+  VALIDATION_FAILED: 'VAL_001',
+  VALIDATION_REQUIRED_FIELD: 'VAL_002',
+  VALIDATION_INVALID_FORMAT: 'VAL_003',
+  VALIDATION_OUT_OF_RANGE: 'VAL_004',
+
+  // System errors (9000-9099)
+  INTERNAL_SERVER_ERROR: 'SYS_001',
+  SERVICE_UNAVAILABLE: 'SYS_002',
+  NETWORK_ERROR: 'SYS_003',
+  UNKNOWN_ERROR: 'SYS_999',
+} as const
+
+export const ERROR_MESSAGES = {
+  [ERROR_CODES.AUTH_INVALID_CREDENTIALS]: 'Invalid email or password',
+  [ERROR_CODES.AUTH_TOKEN_EXPIRED]: 'Authentication token has expired',
+  [ERROR_CODES.AUTH_TOKEN_INVALID]: 'Invalid authentication token',
+  [ERROR_CODES.AUTH_UNAUTHORIZED]: 'Unauthorized access',
+  [ERROR_CODES.AUTH_FORBIDDEN]: 'Access forbidden',
+
+  [ERROR_CODES.WORKFLOW_NOT_FOUND]: 'Workflow not found',
+  [ERROR_CODES.WORKFLOW_INVALID_DEFINITION]: 'Invalid workflow definition',
+  [ERROR_CODES.WORKFLOW_VALIDATION_FAILED]: 'Workflow validation failed',
+  [ERROR_CODES.WORKFLOW_CIRCULAR_DEPENDENCY]: 'Circular dependency detected in workflow',
+  [ERROR_CODES.WORKFLOW_INVALID_NODE]: 'Invalid node configuration',
+  [ERROR_CODES.WORKFLOW_INVALID_EDGE]: 'Invalid edge connection',
+  [ERROR_CODES.WORKFLOW_DUPLICATE_NAME]: 'Workflow name already exists',
+
+  [ERROR_CODES.EXECUTION_NOT_FOUND]: 'Execution not found',
+  [ERROR_CODES.EXECUTION_ALREADY_RUNNING]: 'Execution is already running',
+  [ERROR_CODES.EXECUTION_FAILED]: 'Execution failed',
+  [ERROR_CODES.EXECUTION_TIMEOUT]: 'Execution timeout',
+  [ERROR_CODES.EXECUTION_STOPPED]: 'Execution was stopped',
+  [ERROR_CODES.EXECUTION_INVALID_INPUT]: 'Invalid execution input',
+
+  [ERROR_CODES.NODE_EXECUTION_FAILED]: 'Node execution failed',
+  [ERROR_CODES.NODE_INVALID_CONFIG]: 'Invalid node configuration',
+  [ERROR_CODES.NODE_MISSING_INPUT]: 'Missing required node input',
+  [ERROR_CODES.NODE_TIMEOUT]: 'Node execution timeout',
+
+  [ERROR_CODES.LLM_SERVICE_UNAVAILABLE]: 'LLM service is unavailable',
+  [ERROR_CODES.LLM_MODEL_NOT_FOUND]: 'LLM model not found',
+  [ERROR_CODES.LLM_GENERATION_FAILED]: 'LLM generation failed',
+  [ERROR_CODES.LLM_TIMEOUT]: 'LLM request timeout',
+  [ERROR_CODES.LLM_RATE_LIMIT]: 'LLM rate limit exceeded',
+
+  [ERROR_CODES.DB_CONNECTION_FAILED]: 'Database connection failed',
+  [ERROR_CODES.DB_QUERY_FAILED]: 'Database query failed',
+  [ERROR_CODES.DB_CONSTRAINT_VIOLATION]: 'Database constraint violation',
+  [ERROR_CODES.DB_RECORD_NOT_FOUND]: 'Record not found',
+
+  [ERROR_CODES.VALIDATION_FAILED]: 'Validation failed',
+  [ERROR_CODES.VALIDATION_REQUIRED_FIELD]: 'Required field is missing',
+  [ERROR_CODES.VALIDATION_INVALID_FORMAT]: 'Invalid format',
+  [ERROR_CODES.VALIDATION_OUT_OF_RANGE]: 'Value out of range',
+
+  [ERROR_CODES.INTERNAL_SERVER_ERROR]: 'Internal server error',
+  [ERROR_CODES.SERVICE_UNAVAILABLE]: 'Service unavailable',
+  [ERROR_CODES.NETWORK_ERROR]: 'Network error',
+  [ERROR_CODES.UNKNOWN_ERROR]: 'Unknown error occurred',
+} as const
+
+export type ErrorCode = (typeof ERROR_CODES)[keyof typeof ERROR_CODES]

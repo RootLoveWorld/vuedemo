@@ -1,0 +1,18 @@
+{
+  "recommendations": [
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "vue.volar",
+    "vue.vscode-typescript-vue-plugin",
+    "bradlc.vscode-tailwindcss",
+    "ms-python.python",
+    "ms-python.vscode-pylance",
+    "ms-python.black-formatter",
+    "ms-python.flake8",
+    "charliermarsh.ruff",
+    "editorconfig.editorconfig",
+    "prisma.prisma",
+    "firsttris.vscode-jest-runner",
+    "orta.vscode-jest"
+  ]
+}
