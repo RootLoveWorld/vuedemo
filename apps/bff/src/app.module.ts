@@ -8,6 +8,7 @@ import { AuthModule } from './auth/auth.module'
 import { WorkflowsModule } from './workflows/workflows.module'
 import { ExecutionsModule } from './executions/executions.module'
 import { TenantsModule } from './tenants/tenants.module'
+import { PluginsModule } from './plugins/plugins.module'
 import { TenantMiddleware } from './common/middleware/tenant.middleware'
 import configuration from './config/configuration'
 
@@ -24,6 +25,7 @@ import configuration from './config/configuration'
     WorkflowsModule,
     ExecutionsModule,
     TenantsModule,
+    PluginsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

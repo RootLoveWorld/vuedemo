@@ -22,6 +22,7 @@ model Tenant {
   users      User[]
   workflows  Workflow[]
   executions Execution[]
+  plugins    Plugin[]
 
   @@map("tenants")
 }
@@ -120,7 +121,7 @@ model Execution {
 
   workflowId String
   workflow   Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
-  
+
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -147,4 +148,31 @@ model ExecutionLog {
 
   @@index([executionId])
   @@map("execution_logs")
+}
+
+model Plugin {
+  id          String   @id @default(uuid())
+  name        String
+  version     String
+  author      String
+  description String
+  category    String   // integration, ai, data, utility, custom
+  icon        String?
+  manifest    Json     // PluginManifest
+  isInstalled Boolean  @default(false)
+  isActive    Boolean  @default(false)
+  downloads   Int      @default(0)
+  rating      Float?
+  fileUrl     String?  // URL to plugin file in storage
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, name, version])
+  @@index([tenantId])
+  @@index([category])
+  @@index([isInstalled])
+  @@map("plugins")
 }
